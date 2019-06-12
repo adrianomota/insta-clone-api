@@ -4,11 +4,15 @@ require('dotenv').config({
 
 const express = require('express')
 const mongoose = require('mongoose')
+const path = require('path')
+const cors = require('cors')
 const dbCgf = require('./config/database')
 
 class App {
   constructor () {
     this.express = express()
+    this.server = require('http').Server(this.express)
+    this.io = require('socket.io')(this.server)
     this.database()
     this.middlewares()
     this.routes()
@@ -26,6 +30,11 @@ class App {
 
   middlewares () {
     this.express.use(express.json())
+    this.express.use(cors())
+    this.express.use(
+      '/files',
+      express.static(path.resolve(__dirname, '..', 'uploads', 'resized'))
+    )
   }
 
   routes () {
@@ -33,4 +42,4 @@ class App {
   }
 }
 
-module.exports = new App().express
+module.exports = new App().server
