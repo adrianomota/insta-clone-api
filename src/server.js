@@ -3,16 +3,17 @@ require('dotenv').config({
 })
 
 const express = require('express')
+const cors = require('cors')
+
 const mongoose = require('mongoose')
 const path = require('path')
-const cors = require('cors')
+const morgan = require('morgan')
 const dbCgf = require('./config/database')
 
 class App {
   constructor () {
     this.express = express()
     this.server = require('http').Server(this.express)
-    this.io = require('socket.io')(this.server)
     this.database()
     this.middlewares()
     this.routes()
@@ -31,6 +32,7 @@ class App {
   middlewares () {
     this.express.use(express.json())
     this.express.use(cors())
+    this.express.use(morgan('dev'))
     this.express.use(
       '/files',
       express.static(path.resolve(__dirname, '..', 'uploads', 'resized'))
@@ -38,7 +40,8 @@ class App {
   }
 
   routes () {
-    this.express.use(require('./routes'))
+    const io = require('socket.io')(this.server)
+    this.express.use(require('./routes')(io))
   }
 }
 

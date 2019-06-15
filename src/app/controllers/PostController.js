@@ -5,20 +5,16 @@ const fs = require('fs')
 
 class PostController {
   async Index (req, res) {
-    const posts = await Post.find().sort('-createAt')
+    const posts = await Post.find().sort('-createdAt')
 
-    return res.json({
-      success: true,
-      data: posts,
-      message: 'get posts successfully'
-    })
+    return res.status(200).json(posts)
   }
 
   async Store (req, res) {
-    const { author, place, description, hastags } = req.body
+    const { author, place, description, hashtags } = req.body
     const { filename: image } = req.file
-    const [name] = image.split('.')
-    const fileName = `${name}.jpg`
+    const [name, ext] = image.split('.')
+    const fileName = `${name}.${ext}`
 
     await sharp(req.file.path)
       .resize(500)
@@ -31,7 +27,7 @@ class PostController {
       author,
       place,
       description,
-      hastags,
+      hashtags,
       image: fileName
     })
 
